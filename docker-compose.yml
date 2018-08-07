@@ -1,0 +1,48 @@
+version: '3'
+services:
+  fpm:
+    build: php7fpm
+    restart: always
+    volumes:
+      - ./wordpress.matbra.com/:/var/www/wordpress.matbra.com
+      - ./php7fpm/sendmail.mc:/usr/share/sendmail/cf/debian/sendmail.mc
+      - ./php7fpm/gmail-auth.db:/etc/mail/authinfo/gmail-auth.db
+      - ./logs/sendmail/:/var/log/sendmail
+    ports:
+      - "9000:9000"
+    links:
+      - mariadb 
+    hostname: boarders.com.br
+  
+  nginx:
+    image: nginx:1.10.1-alpine
+    restart: always
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/app.vhost:/etc/nginx/conf.d/default.conf
+      - ./logs/nginx:/var/log/nginx
+      - ./wordpress.matbra.com/:/var/www/wordpress.matbra.com
+      - ./jekyll.matbra.com/:/var/www/jekyll.matbra.com
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - fpm
+
+  mariadb:
+    image: mariadb
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=
+    volumes:
+    -   ./data/db:/var/lib/mysql
+  wpcli:
+    image: wordpress:cli
+    volumes:
+      - ./wordpress.matbra.com/:/var/www/html
+      - ./backups:/var/www/backups
+    links:
+      - mariadb
+    #entrypoint: wp  
+    #command: "--info"

@@ -1,0 +1,58 @@
+server {
+    listen 80;
+    server_name wordpress.matbra.com; #wordpress.matbra.com
+    #rewrite ^/wp-content/uploads/(.*)$ http://files.matbra.com/uploads/$1 permanent;  
+
+    location /wp-content/uploads/ {
+        rewrite_log on;
+        rewrite ^/wp-content/uploads/(.*)$ https://files.matbra.com/uploads/$1 permanent;
+    }
+        
+    location / {
+        root   /var/www/wordpress.matbra.com/;
+        index  index.php index.html index.htm;
+        try_files $uri $uri/ /index.php?$uri$args;
+    }
+
+    location ~ \.php$ {
+        root /var/www/wordpress.matbra.com;
+        fastcgi_pass   fpm:9000;
+        fastcgi_index  index.php;
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+        #uncomment when running via https
+        fastcgi_param HTTPS on;
+    }
+
+    error_log /var/log/nginx/error.log;
+    access_log /var/log/nginx/access.log;
+}
+
+server {
+   listen 80;
+   server_name www.matbra.com matbra.com;
+   location / {
+        proxy_intercept_errors on;
+        error_page 404 = @wordpress;
+        proxy_set_header Host $http_host;
+        proxy_pass http://127.0.0.1:5000;
+        proxy_set_header X-Real-IP $remote_addr;
+   } 
+
+   location @wordpress {
+        rewrite ^/(.*) https://wordpress.matbra.com/$1 permanent;
+   }
+
+}
+
+server {
+    listen  5000;
+
+    location / {
+        root   /var/www/jekyll.matbra.com/_site/;
+        index  index.html index.htm;
+        try_files $uri $uri/index.html =404;
+    }
+
+}
+
