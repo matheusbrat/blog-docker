@@ -1,0 +1,6 @@
+[submodule "wordpress.matbra.com"]
+	path = wordpress.matbra.com
+	url = git@github.com:x-warrior/wordpress-matbra.git
+[submodule "jekyll.matbra.com"]
+	path = jekyll.matbra.com
+	url = git@github.com:x-warrior/matbra-jekyll.git
