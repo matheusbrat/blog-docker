@@ -24,8 +24,8 @@ services:
       - ./wordpress.matbra.com/:/var/www/wordpress.matbra.com
       - ./jekyll.matbra.com/:/var/www/jekyll.matbra.com
     ports:
-      - "80:80"
-      - "443:443"
+      - "8000:80"
+      - "8443:443"
     links:
       - fpm
 
